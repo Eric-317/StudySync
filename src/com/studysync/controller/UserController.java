@@ -13,4 +13,16 @@ public class UserController {
     public User login(String email, String password) {
         return userService.login(email, password);
     }
+    
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        return userService.changePassword(userId, oldPassword, newPassword);
+    }
+    
+    public boolean updateBirthDate(int userId, String newBirthDate) {
+        return userService.updateBirthDate(userId, newBirthDate);
+    }
+    
+    public User getUserById(int userId) {
+        return userService.getUserById(userId);
+    }
 }

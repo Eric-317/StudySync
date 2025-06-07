@@ -8,17 +8,28 @@ public class Task {
     private LocalDateTime dueTime;
     private String category;
     private boolean completed;
+    private int userId; // 添加用戶ID字段
 
-    public Task(int uid, String title, LocalDateTime dueTime, String category, boolean completed) {
+    public Task(int uid, String title, LocalDateTime dueTime, String category, boolean completed, int userId) {
         this.uid = uid;
         this.title = title;
         this.dueTime = dueTime;
         this.category = category;
         this.completed = completed;
+        this.userId = userId;
+    }
+
+    public Task(String title, LocalDateTime dueTime, String category, boolean completed, int userId) {
+        this(-1, title, dueTime, category, completed, userId);
+    }
+
+    // 為了保持向後兼容性，保留原有構造函數
+    public Task(int uid, String title, LocalDateTime dueTime, String category, boolean completed) {
+        this(uid, title, dueTime, category, completed, -1); // 預設userId為-1
     }
 
     public Task(String title, LocalDateTime dueTime, String category, boolean completed) {
-        this(-1, title, dueTime, category, completed);
+        this(-1, title, dueTime, category, completed, -1); // 預設userId為-1
     }
 
     public int getUid() {
@@ -47,6 +58,14 @@ public class Task {
 
     public void setDueTime(LocalDateTime dueTime) {
         this.dueTime = dueTime;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public String getCategory() {

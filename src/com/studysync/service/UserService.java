@@ -44,4 +44,31 @@ public class UserService {
         }
         return null;
     }
+    
+    public boolean changePassword(int userId, String oldPassword, String newPassword) {
+        try {
+            return userRepository.updatePassword(userId, oldPassword, newPassword);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public boolean updateBirthDate(int userId, String newBirthDate) {
+        try {
+            return userRepository.updateBirthDate(userId, newBirthDate);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public User getUserById(int userId) {
+        try {
+            return userRepository.findById(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

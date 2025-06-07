@@ -36,4 +36,57 @@ public class UserRepository {
         }
         return null;
     }
+    
+    public boolean updatePassword(int userId, String oldPassword, String newPassword) throws SQLException {
+        // 先驗證舊密碼是否正確
+        String checkSql = "SELECT password FROM users WHERE uid = ?";
+        try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            checkStmt.setInt(1, userId);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    String currentPassword = rs.getString("password");
+                    if (!currentPassword.equals(oldPassword)) {
+                        return false; // 舊密碼不正確
+                    }
+                } else {
+                    return false; // 用戶不存在
+                }
+            }
+        }
+        
+        // 更新密碼
+        String updateSql = "UPDATE users SET password = ? WHERE uid = ?";
+        try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+            updateStmt.setString(1, newPassword);
+            updateStmt.setInt(2, userId);
+            int rowsAffected = updateStmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    
+    public boolean updateBirthDate(int userId, String newBirthDate) throws SQLException {
+        String sql = "UPDATE users SET birth_date = ? WHERE uid = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, newBirthDate);
+            stmt.setInt(2, userId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+    
+    public User findById(int userId) throws SQLException {
+        String sql = "SELECT * FROM users WHERE uid = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, userId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String email = rs.getString("email");
+                    String pw = rs.getString("password");
+                    String birth = rs.getString("birth_date");
+                    return new User(userId, email, pw, birth);
+                }
+            }
+        }
+        return null;
+    }
 }

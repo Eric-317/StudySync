@@ -27,7 +27,7 @@ public class LoginPanel extends JPanel {
         logoTextPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 0));
         logoTextPanel.setBackground(Color.WHITE);
 
-        ImageIcon rawIcon = new ImageIcon(getClass().getResource("/assets/logo.png"));
+        ImageIcon rawIcon = new ImageIcon(getClass().getResource("/com/studysync/assets/photo/logo.png"));
         Image scaled = rawIcon.getImage().getScaledInstance(32, 32, Image.SCALE_SMOOTH);
         JLabel logoLabel = new JLabel(new ImageIcon(scaled));
 
