@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream; // 新增 import
 import java.nio.file.Files;
@@ -16,6 +17,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays; // Add for Arrays.asList
+
+import com.studysync.util.AppSettings; // Import AppSettings
 
 public class MusicPanel extends JPanel {
     private List<String> musicFiles;
@@ -39,15 +43,17 @@ public class MusicPanel extends JPanel {
     public MusicPanel() {
         initMusicList();
         initUI();
-        loadMusic(musicFiles.get(currentIndex));
+        // loadMusic(musicFiles.get(currentIndex)); // Removed: Load only if not empty
+        updatePlaybackControlsState(); // Set initial state of controls
     }
     
     private void initMusicList() {
         musicFiles = new ArrayList<>();
-        // 修改音樂文件路徑，使用相對於 classpath 的路徑
-        musicFiles.add("/com/studysync/assets/music/統神 - 你從桃園新竹Lofi 1hr.wav");
-        musicFiles.add("/com/studysync/assets/music/統神 - 欸欸肉羹麵Lofi 1hr.wav");
-        musicFiles.add("/com/studysync/assets/music/統神 - 你們聽我講一件事情Lofi 1hr.wav");
+        // Load custom music paths from AppSettings
+        String savedPaths = AppSettings.getInstance().getCustomMusicPaths();
+        if (savedPaths != null && !savedPaths.isEmpty()) {
+            musicFiles.addAll(Arrays.asList(savedPaths.split(";")));
+        }
     }
     
     private void initUI() {
@@ -66,7 +72,7 @@ public class MusicPanel extends JPanel {
         centerPanel.setOpaque(false);
         
         // 音樂名稱標籤
-        currentMusicLabel = new JLabel(getFormattedMusicName(musicFiles.get(currentIndex)), SwingConstants.CENTER);
+        currentMusicLabel = new JLabel("請新增音樂", SwingConstants.CENTER); // Default text
         currentMusicLabel.setFont(new Font("微軟正黑體", Font.PLAIN, 20));
         currentMusicLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
           // 播放狀態視覺化面板（模擬唱片播放效果）
@@ -245,7 +251,10 @@ public class MusicPanel extends JPanel {
     
     private String getFormattedMusicName(String resourcePath) {
         // 從資源路徑中獲取檔案名稱
-        String fileName = resourcePath.substring(resourcePath.lastIndexOf('/') + 1);
+        if (resourcePath == null || resourcePath.trim().isEmpty()) {
+            return "請新增音樂";
+        }
+        String fileName = new File(resourcePath).getName(); // Works for both classpath and absolute paths
         // 移除副檔名
         if (fileName.contains(".")) {
             fileName = fileName.substring(0, fileName.lastIndexOf('.'));
@@ -255,15 +264,29 @@ public class MusicPanel extends JPanel {
     
     private void loadMusic(String filePath) {
         try {
+            if (filePath == null || filePath.trim().isEmpty()) {
+                currentMusicLabel.setText("無效的音樂路徑");
+                if (marqueeTimer != null) marqueeTimer.stop();
+                return;
+            }
             // 先停止並釋放前一個音樂的資源
             stopMusic();
-            
-            // 從 classpath 載入音樂資源
-            InputStream audioSrc = MusicPanel.class.getResourceAsStream(filePath);
-            if (audioSrc == null) {
-                throw new IOException("無法找到音樂資源: " + filePath);
+
+            InputStream audioSrc;
+            // Check if it's a classpath resource or an absolute file path
+            if (filePath.startsWith("/")) { // Classpath resource (from original assets or copied)
+                audioSrc = MusicPanel.class.getResourceAsStream(filePath);
+                if (audioSrc == null) {
+                    throw new IOException("無法找到音樂資源: " + filePath);
+                }
+            } else { // Absolute file path (user-imported)
+                File musicFile = new File(filePath);
+                if (!musicFile.exists()) {
+                    throw new IOException("音樂檔案不存在: " + filePath);
+                }
+                audioSrc = new FileInputStream(musicFile);
             }
-            
+
             // 使用 BufferedInputStream 以支援 mark/reset
             InputStream bufferedIn = new java.io.BufferedInputStream(audioSrc);
             
@@ -305,6 +328,9 @@ public class MusicPanel extends JPanel {
     }
     
     private void stopMusic() {
+        if (marqueeTimer != null) { // Stop marquee when music stops or changes
+            marqueeTimer.stop();
+        }
         if (audioClip != null && audioClip.isOpen()) {
             audioClip.stop();
             audioClip.close();
@@ -346,32 +372,37 @@ public class MusicPanel extends JPanel {
     }
     
     private void playPrevious() {
+        if (musicFiles.isEmpty()) return;
         currentIndex--;
         if (currentIndex < 0) {
             currentIndex = musicFiles.size() - 1;
         }
         loadMusic(musicFiles.get(currentIndex));
         
-        // 如果當前是播放狀態，則自動播放新載入的歌曲
-        if (isPlaying) {
+        if (isPlaying && audioClip != null) {
             audioClip.start();
         }
     }
     
     private void playNext() {
+        if (musicFiles.isEmpty()) return;
         currentIndex++;
         if (currentIndex >= musicFiles.size()) {
             currentIndex = 0;
         }
         loadMusic(musicFiles.get(currentIndex));
         
-        // 如果當前是播放狀態，則自動播放新載入的歌曲
-        if (isPlaying) {
+        if (isPlaying && audioClip != null) {
             audioClip.start();
         }
     }
     
     private void startMarqueeEffect() {
+        if (musicFiles.isEmpty() || currentIndex < 0 || currentIndex >= musicFiles.size()) {
+            if (marqueeTimer != null) marqueeTimer.stop();
+            currentMusicLabel.setText(getFormattedMusicName(null)); // Or "請新增音樂"
+            return;
+        }
         fullTitle = getFormattedMusicName(musicFiles.get(currentIndex));
         marqueeIndex = 0;
 
@@ -404,7 +435,7 @@ public class MusicPanel extends JPanel {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("選擇音樂文件");
         fileChooser.setMultiSelectionEnabled(true);
-        
+
         // 設置文件過濾器，只顯示音頻文件
         fileChooser.setFileFilter(new javax.swing.filechooser.FileFilter() {
             @Override
@@ -413,47 +444,77 @@ public class MusicPanel extends JPanel {
                 String name = f.getName().toLowerCase();
                 return name.endsWith(".wav") || name.endsWith(".mp3") || name.endsWith(".aiff");
             }
-            
+
             @Override
             public String getDescription() {
                 return "音頻文件 (*.wav, *.mp3, *.aiff)";
             }
         });
-        
+
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File[] selectedFiles = fileChooser.getSelectedFiles();
+            boolean musicAdded = false;
+
+            // 獲取桌面路徑並建立 StudySyncMusic 資料夾
+            String desktopPath = System.getProperty("user.home") + File.separator + "Desktop";
+            File appMusicDir = new File(desktopPath, "StudySyncMusic");
+            if (!appMusicDir.exists()) {
+                if (!appMusicDir.mkdirs()) {
+                    JOptionPane.showMessageDialog(this,
+                            "無法在桌面建立 StudySyncMusic 資料夾。",
+                            "錯誤",
+                            JOptionPane.ERROR_MESSAGE);
+                    return; // 無法建立資料夾，則終止操作
+                }
+            }
+
             for (File file : selectedFiles) {
                 try {
-                    // 複製文件到資產目錄
-                    Path targetDir = Paths.get("src/com/studysync/assets/music");
-                    
-                    // 確保目標目錄存在
-                    Files.createDirectories(targetDir);
-                    
-                    Path targetPath = targetDir.resolve(file.getName());
-                    Files.copy(file.toPath(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    
-                    // 將新音樂添加到列表
-                    String musicPath = targetPath.toString();
-                    musicFiles.add(musicPath);
-                    
-                    JOptionPane.showMessageDialog(this, 
-                            "已成功添加音樂：" + file.getName(), 
-                            "新增音樂", 
-                            JOptionPane.INFORMATION_MESSAGE);
-                    
+                    Path sourcePath = file.toPath();
+                    Path targetPath = new File(appMusicDir, file.getName()).toPath();
+
+                    // 複製檔案到桌面上的 StudySyncMusic 資料夾
+                    Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+
+                    String musicPath = targetPath.toString(); // 儲存複製後檔案的絕對路徑
+                    if (!musicFiles.contains(musicPath)) { // Avoid duplicates
+                        musicFiles.add(musicPath);
+                        musicAdded = true;
+                    }
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this, 
-                            "添加音樂時發生錯誤：" + ex.getMessage(), 
-                            "錯誤", 
+                    JOptionPane.showMessageDialog(this,
+                            "複製音樂檔案 '" + file.getName() + "' 到桌面時發生錯誤: " + ex.getMessage(),
+                            "錯誤",
                             JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
+                    // 即使單一檔案複製失敗，也繼續處理其他檔案
                 }
+            }
+
+            if (musicAdded) {
+                // Save updated music list to AppSettings
+                AppSettings.getInstance().setCustomMusicPaths(String.join(";", musicFiles));
+                JOptionPane.showMessageDialog(this,
+                        "已成功添加音樂到桌面 StudySyncMusic 資料夾。",
+                        "新增音樂",
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                // If the list was empty, load the first added song
+                if (musicFiles.size() == Arrays.stream(selectedFiles).filter(f -> new File(appMusicDir, f.getName()).exists()).count() && !musicFiles.isEmpty()) {
+                    currentIndex = 0;
+                    loadMusic(musicFiles.get(currentIndex));
+                }
+                updatePlaybackControlsState();
+            } else if (selectedFiles.length > 0) { // User selected files, but none were new
+                 JOptionPane.showMessageDialog(this,
+                        "選擇的音樂已存在於播放清單中或無法複製。",
+                        "提示",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
         }
     }
-    
+
     /**
      * 顯示音樂列表對話框
      */
@@ -513,11 +574,20 @@ public class MusicPanel extends JPanel {
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addNewMusic();
+                boolean wasEmpty = musicFiles.isEmpty();
+                addNewMusic(); // Modifies MusicPanel.this.musicFiles
                 // 更新列表
                 listModel.clear();
                 for (String musicFile : musicFiles) {
                     listModel.addElement(getFormattedMusicName(musicFile));
+                }
+                MusicPanel.this.updatePlaybackControlsState();
+                if (wasEmpty && !musicFiles.isEmpty()) {
+                    MusicPanel.this.currentIndex = 0; // Load the first added song
+                    MusicPanel.this.loadMusic(musicFiles.get(MusicPanel.this.currentIndex));
+                } else if (!musicFiles.isEmpty() && (MusicPanel.this.audioClip == null || !MusicPanel.this.audioClip.isOpen())) {
+                    // If list was not empty but nothing loaded, or became non-empty again
+                     MusicPanel.this.loadMusic(musicFiles.get(MusicPanel.this.currentIndex)); // Ensure current is loaded
                 }
             }
         });
@@ -525,61 +595,62 @@ public class MusicPanel extends JPanel {
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int selectedIndex = musicList.getSelectedIndex();
-                if (selectedIndex != -1) {
+                int selectedIndexInList = musicList.getSelectedIndex();
+                if (selectedIndexInList != -1) {
                     // 確認刪除
                     int option = JOptionPane.showConfirmDialog(
                             dialog,
-                            "確定要刪除選中的音樂嗎？",
+                            "確定要刪除選中的音樂嗎？ (注意：這只會從播放列表中移除)", // Clarified deletion scope
                             "確認刪除",
                             JOptionPane.YES_NO_OPTION);
                     
                     if (option == JOptionPane.YES_OPTION) {
-                        // 如果正在播放要刪除的音樂，先停止播放
-                        if (selectedIndex == currentIndex && isPlaying) {
-                            togglePlayPause();
+                        String musicPathToRemove = musicFiles.get(selectedIndexInList); // Get path before removing from listModel if it's different index
+
+                        boolean wasPlayingDeletedSong = (selectedIndexInList == currentIndex && isPlaying);
+
+                        // 從列表中移除
+                        musicFiles.remove(selectedIndexInList);
+                        listModel.remove(selectedIndexInList);
+
+                        // Save updated music list to AppSettings
+                        AppSettings.getInstance().setCustomMusicPaths(String.join(";", musicFiles));
+
+                        // 調整當前索引
+                        if (musicFiles.isEmpty()) {
+                            currentIndex = 0;
+                            stopMusic(); // stopMusic is also called in updatePlaybackControlsState
+                        } else {
+                            if (currentIndex >= selectedIndexInList) {
+                                currentIndex = Math.max(0, currentIndex - 1);
+                            }
+                             // Ensure currentIndex is valid
+                            if (currentIndex >= musicFiles.size()) {
+                                currentIndex = musicFiles.size() - 1;
+                            }
                         }
                         
-                        // 刪除音樂文件
-                        try {
-                            File musicFile = new File(musicFiles.get(selectedIndex));
-                            boolean deleted = musicFile.delete();
-                            
-                            if (deleted || !musicFile.exists()) {
-                                // 從列表中移除
-                                musicFiles.remove(selectedIndex);
-                                listModel.remove(selectedIndex);
-                                
-                                // 調整當前索引
-                                if (currentIndex >= selectedIndex) {
-                                    currentIndex = Math.max(0, currentIndex - 1);
-                                }
-                                
-                                // 如果刪除後沒有音樂了
-                                if (musicFiles.isEmpty()) {
-                                    stopMusic();
-                                    JOptionPane.showMessageDialog(dialog,
-                                            "已刪除所有音樂，請添加新的音樂。",
-                                            "提示",
-                                            JOptionPane.INFORMATION_MESSAGE);
-                                    dialog.dispose();
-                                } else if (selectedIndex == currentIndex) {
-                                    // 重新加載當前音樂
-                                    loadMusic(musicFiles.get(currentIndex));
-                                }
-                            } else {
-                                JOptionPane.showMessageDialog(dialog,
-                                        "無法刪除文件：" + musicFile.getName(),
-                                        "錯誤",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                        } catch (Exception ex) {
+                        MusicPanel.this.updatePlaybackControlsState();
+                        
+                        if (musicFiles.isEmpty()) {
                             JOptionPane.showMessageDialog(dialog,
-                                    "刪除音樂時發生錯誤：" + ex.getMessage(),
-                                    "錯誤",
-                                    JOptionPane.ERROR_MESSAGE);
-                            ex.printStackTrace();
+                                    "已刪除所有音樂，請添加新的音樂。",
+                                    "提示",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                            // dialog.dispose(); // Optional: close dialog if list becomes empty
+                        } else {
+                            // If the deleted song was playing or list re-ordered
+                            loadMusic(musicFiles.get(currentIndex));
+                            if (wasPlayingDeletedSong) {
+                                if (MusicPanel.this.isPlaying) { // If panel is still in playing state
+                                   if (audioClip != null) audioClip.start();
+                                } else {
+                                   playPauseButton.setText("播放");
+                                }
+                            }
                         }
+                         // Note: Actual file deletion from assets is not handled here robustly.
+                         // The user was informed it's removed from playlist.
                     }
                 } else {
                     JOptionPane.showMessageDialog(dialog,
@@ -606,5 +677,29 @@ public class MusicPanel extends JPanel {
         
         // 顯示對話框
         dialog.setVisible(true);
+    }
+
+    // New helper method
+    private void updatePlaybackControlsState() {
+        if (musicFiles.isEmpty()) {
+            if (isPlaying || (audioClip != null && audioClip.isRunning())) {
+                stopMusic(); // Stop music if list becomes empty
+            }
+            currentMusicLabel.setText("請新增音樂");
+            isPlaying = false;
+            playPauseButton.setText("播放");
+            playPauseButton.setEnabled(false);
+            prevButton.setEnabled(false);
+            nextButton.setEnabled(false);
+            if (marqueeTimer != null) {
+                marqueeTimer.stop();
+            }
+        } else {
+            playPauseButton.setEnabled(true);
+            prevButton.setEnabled(true);
+            nextButton.setEnabled(true);
+            // currentMusicLabel will be updated by loadMusic
+            // If music was just added to an empty list, loadMusic would be called separately.
+        }
     }
 }
