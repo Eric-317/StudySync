@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/studysync_jar</output-path>
     <root id="archive" name="studysync.jar">
       <element id="module-output" name="studysync" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/../oop_project/mysql-connector-j-9.3.0.jar" path-in-jar="/" />
+      <element id="file-copy" path="$PROJECT_DIR$/../oop_project/mysql-connector-j-9.3.0.jar" />
     </root>
   </artifact>
 </component>
