@@ -33,24 +33,37 @@ public class EventItemPanel extends JPanel {
         // 內容面板，使用 BoxLayout 垂直排列標題和時間
         JPanel contentPanel = new JPanel();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
-        contentPanel.setOpaque(false); // 使其透明以顯示 EventItemPanel 的背景色
-
-        // 標題標籤 (使用行程描述)
-        JLabel titleLabel = new JLabel(event.getDescription());
+        contentPanel.setOpaque(false); // 使其透明以顯示 EventItemPanel 的背景色        // 標題標籤 (使用行程描述)
+        String displayTitle = event.getDescription();
+        
+        JLabel titleLabel = new JLabel(displayTitle);
         titleLabel.setFont(TITLE_FONT);
-        titleLabel.setForeground(TITLE_COLOR);
-        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT); // 在 BoxLayout 中左對齊
-
-        // 時間標籤
+        // 根據事件類型使用不同的標題顏色
+        if (event.isTask()) {
+            titleLabel.setForeground(new Color(200, 100, 50)); // 橘色代表任務
+        } else {
+            titleLabel.setForeground(TITLE_COLOR); // 原來的顏色代表事件
+        }
+        titleLabel.setAlignmentX(Component.LEFT_ALIGNMENT); // 在 BoxLayout 中左對齊// 時間和類型標籤
         String timeStr;
         if (event.getTime() != null) {
             timeStr = event.getTime().format(DateTimeFormatter.ofPattern("HH:mm"));
         } else {
             timeStr = "All-day"; // 全天行程
         }
-        JLabel timeInfoLabel = new JLabel(timeStr);
+        
+        // 添加事件類型標示
+        String eventType = event.isTask() ? "Task" : "Event";
+        String displayText = timeStr + " • " + eventType;
+        
+        JLabel timeInfoLabel = new JLabel(displayText);
         timeInfoLabel.setFont(TIME_INFO_FONT);
-        timeInfoLabel.setForeground(TIME_INFO_COLOR);
+        // 根據事件類型使用不同顏色
+        if (event.isTask()) {
+            timeInfoLabel.setForeground(new Color(200, 100, 50)); // 橘色代表任務
+        } else {
+            timeInfoLabel.setForeground(TIME_INFO_COLOR); // 原來的顏色代表事件
+        }
         timeInfoLabel.setAlignmentX(Component.LEFT_ALIGNMENT); // 在 BoxLayout 中左對齊
 
         contentPanel.add(titleLabel);

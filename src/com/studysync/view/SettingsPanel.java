@@ -2,6 +2,7 @@ package com.studysync.view;
 
 import com.studysync.controller.UserController;
 import com.studysync.model.User;
+import com.studysync.util.DBUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -78,8 +79,30 @@ public class SettingsPanel extends JPanel {
         userInfoPanel.add(uidLabel);
         userInfoPanel.add(birthDateTitleLabel);
         userInfoPanel.add(birthDateLabel);
+          contentPanel.add(userInfoPanel);
+        contentPanel.add(Box.createVerticalStrut(20)); // 間隔
         
-        contentPanel.add(userInfoPanel);
+        // 系統資訊面板
+        JPanel systemInfoPanel = new JPanel();
+        systemInfoPanel.setLayout(new GridLayout(1, 2, 10, 20));
+        systemInfoPanel.setBackground(new Color(245, 248, 255));
+        systemInfoPanel.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(new Color(210, 215, 230), 1),
+                "系統資訊",
+                1,
+                0,
+                new Font("微軟正黑體", Font.BOLD, 16)
+        ));
+        
+        JLabel databaseTypeLabel = new JLabel("資料庫類型:");
+        databaseTypeLabel.setFont(new Font("微軟正黑體", Font.BOLD, 14));
+        JLabel databaseValueLabel = new JLabel(DBUtil.getDatabaseType());
+        databaseValueLabel.setFont(new Font("微軟正黑體", Font.PLAIN, 14));
+        
+        systemInfoPanel.add(databaseTypeLabel);
+        systemInfoPanel.add(databaseValueLabel);
+        
+        contentPanel.add(systemInfoPanel);
         contentPanel.add(Box.createVerticalStrut(20)); // 間隔
         
         // 添加按鈕面板

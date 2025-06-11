@@ -3,7 +3,6 @@ package com.studysync.view;
 import javax.swing.*;
 import java.awt.*;
 import com.studysync.model.User; // for showDashboard user parameter
-import com.studysync.util.CreateMySQLDatabase;
 
 public class MainWindow extends JFrame {
     private JPanel mainContentArea; // Panel to hold swappable content like LoginPanel, TaskPanel, etc.
@@ -98,12 +97,42 @@ public class MainWindow extends JFrame {
         this.currentUser = null; // 清除當前用戶
         iconPanel.setVisible(false); // 隱藏導航圖標
         showLoginPanel(); // 返回登入頁面
-    }
-    
-    public static void main(String[] args) {
-        // 初始化資料庫與資料表
-        CreateMySQLDatabase.main(new String[0]);
-        SwingUtilities.invokeLater(() -> new MainWindow().setVisible(true));
+    }    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            try {
+                MainWindow mainWindow = new MainWindow();
+                
+                // 顯示資料庫選擇對話框
+                DatabaseSelectionDialog dbDialog = new DatabaseSelectionDialog(mainWindow);
+                dbDialog.setVisible(true);
+                
+                if (dbDialog.isConfigurationComplete()) {
+                    mainWindow.setVisible(true);
+                } else {
+                    System.out.println("用戶取消了資料庫配置，程式結束。");
+                    System.exit(0);
+                }
+            } catch (Exception e) {
+                System.err.println("啟動時發生錯誤: " + e.getMessage());
+                e.printStackTrace();
+                
+                // 顯示錯誤對話框和安裝指南
+                JOptionPane.showMessageDialog(
+                    null,
+                    "程式啟動失敗。可能是缺少必要的驅動程式。\n\n" +
+                    "請確認已安裝 SQLite JDBC 驅動:\n" +
+                    "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.3.0/sqlite-jdbc-3.45.3.0.jar\n\n" +
+                    "安裝步驟:\n" +
+                    "1. 在 IntelliJ IDEA 中按 F4\n" +
+                    "2. 選擇 Dependencies\n" +
+                    "3. 點擊 '+' 新增 JAR\n" +
+                    "4. 選擇下載的 sqlite-jdbc-3.45.3.0.jar",
+                    "啟動錯誤",
+                    JOptionPane.ERROR_MESSAGE
+                );
+                System.exit(1);
+            }
+        });
     }
     
     // 關閉窗口時釋放音樂資源

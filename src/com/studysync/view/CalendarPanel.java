@@ -61,11 +61,17 @@ public class CalendarPanel extends JPanel {
 
         setLayout(new BorderLayout(0, 2)); // Main panel layout with reduced vertical gap
         setBackground(BACKGROUND_COLOR);
-        setBorder(new EmptyBorder(10, 10, 10, 10)); // Overall padding
-
-        // NORTH: Header with month title and navigation
+        setBorder(new EmptyBorder(10, 10, 10, 10)); // Overall padding        // NORTH: Header with month title, navigation, and legend
+        JPanel northPanel = new JPanel(new BorderLayout());
+        northPanel.setBackground(BACKGROUND_COLOR);
+        
         JPanel monthHeaderPanel = createMonthHeaderPanel();
-        add(monthHeaderPanel, BorderLayout.NORTH);
+        JPanel legendPanel = createLegendPanel();
+        
+        northPanel.add(monthHeaderPanel, BorderLayout.NORTH);
+        northPanel.add(legendPanel, BorderLayout.SOUTH);
+        
+        add(northPanel, BorderLayout.NORTH);
 
         // CENTER: Calendar Grid
         this.calendarGridPanel = new JPanel(new GridLayout(0, 7, 5, 5)); // 0 rows means it will adjust
@@ -269,13 +275,30 @@ public class CalendarPanel extends JPanel {
 
         for (int i = 0; i < dayOfWeekOffset; i++) {
             calendarGridPanel.add(new JLabel("")); // Empty cell for offset
-        }
-
-        for (int day = 1; day <= daysInMonth; day++) {
+        }        for (int day = 1; day <= daysInMonth; day++) {
             LocalDate date = displayedMonthFirstDay.withDayOfMonth(day);
             
-            boolean hasEvent = dailyEvents.containsKey(date) && !dailyEvents.get(date).isEmpty();
-            DateCellButton dayCellButton = new DateCellButton(String.valueOf(day), date, hasEvent);
+            // 檢查該日期是否有任務和事件
+            boolean hasAnyEvents = dailyEvents.containsKey(date) && !dailyEvents.get(date).isEmpty();
+            boolean hasTask = false;
+            boolean hasEvent = false;
+            
+            if (hasAnyEvents) {
+                List<CalendarEvent> eventsOnDate = dailyEvents.get(date);
+                for (CalendarEvent event : eventsOnDate) {
+                    if (event.isTask()) {
+                        hasTask = true;
+                    } else {
+                        hasEvent = true;
+                    }
+                    // 如果兩種類型都有了，就不需要繼續檢查
+                    if (hasTask && hasEvent) {
+                        break;
+                    }
+                }
+            }
+            
+            DateCellButton dayCellButton = new DateCellButton(String.valueOf(day), date, hasEvent, hasTask);
 
             // Highlight selected date
             if (date.equals(currentSelectedDate)) {
@@ -421,51 +444,60 @@ public class CalendarPanel extends JPanel {
             System.err.println("載入任務時發生錯誤: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    // Inner class for custom date button
+    }    // Inner class for custom date button
     private class DateCellButton extends JButton {
         private boolean hasEvent;
-        // private LocalDate date; // Not strictly needed for current paint logic but good for context
+        private boolean hasTask;
+        @SuppressWarnings("unused") // 保留以備將來使用
+        private LocalDate date;
 
-        public DateCellButton(String text, LocalDate date, boolean hasEvent) {
+        public DateCellButton(String text, LocalDate date, boolean hasEvent, boolean hasTask) {
             super(text);
-            // this.date = date;
+            this.date = date;
             this.hasEvent = hasEvent;
+            this.hasTask = hasTask;
             setFont(DATE_FONT);
             setFocusPainted(false);
             setOpaque(true); 
             setBorder(BorderFactory.createEmptyBorder(5,5,5,5)); // Default border
             setHorizontalAlignment(SwingConstants.CENTER); // Center the date number
-            // Adjust vertical alignment to provide space for the dot if necessary,
-            // or ensure button height is adequate.
-            // setVerticalAlignment(SwingConstants.TOP); // Might push text too high
-        }
-
-        // 這個方法標記為 @SuppressWarnings 以消除警告
-        @SuppressWarnings("unused")
-        public void setHasEvent(boolean hasEvent) { // In case it needs to be updated later
-            this.hasEvent = hasEvent;
-            repaint();
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g); // Draw the button text and background
 
-            if (hasEvent) {
+            if (hasEvent || hasTask) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(SELECTED_DATE_BG_COLOR); // Use a distinct color for the dot, e.g., blue
 
                 int dotDiameter = 6;
-                // Center the dot horizontally
-                int x = (getWidth() - dotDiameter) / 2;
-                // Position the dot towards the bottom of the button, below the text
-                // Ensure this doesn't overlap with border or go outside button bounds
                 int y = getHeight() - dotDiameter - 4; // 4 pixels from the bottom edge
 
-                g2.fillOval(x, y, dotDiameter, dotDiameter);
+                if (hasEvent && hasTask) {
+                    // 如果同時有事件和任務，顯示兩個點
+                    int leftX = (getWidth() / 2) - dotDiameter - 2;
+                    int rightX = (getWidth() / 2) + 2;
+                    
+                    // 左邊顯示事件點 (藍色)
+                    g2.setColor(SELECTED_DATE_BG_COLOR);
+                    g2.fillOval(leftX, y, dotDiameter, dotDiameter);
+                    
+                    // 右邊顯示任務點 (橘色)
+                    g2.setColor(new Color(200, 100, 50));
+                    g2.fillOval(rightX, y, dotDiameter, dotDiameter);
+                } else if (hasTask) {
+                    // 只有任務，顯示橘色點
+                    g2.setColor(new Color(200, 100, 50));
+                    int x = (getWidth() - dotDiameter) / 2;
+                    g2.fillOval(x, y, dotDiameter, dotDiameter);
+                } else if (hasEvent) {
+                    // 只有事件，顯示藍色點
+                    g2.setColor(SELECTED_DATE_BG_COLOR);
+                    int x = (getWidth() - dotDiameter) / 2;
+                    g2.fillOval(x, y, dotDiameter, dotDiameter);
+                }
+
                 g2.dispose();
             }
         }
@@ -497,5 +529,93 @@ public class CalendarPanel extends JPanel {
             System.err.println("尚未登入，無法刷新日曆");
             initEmptyCalendarView();
         }
+    }
+
+    // 創建圖例面板
+    private JPanel createLegendPanel() {
+        JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 5));
+        legendPanel.setBackground(BACKGROUND_COLOR);
+        legendPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
+
+        // 事件圖例
+        JPanel eventLegend = createLegendItem(SELECTED_DATE_BG_COLOR, "Events");
+        
+        // 任務圖例
+        JPanel taskLegend = createLegendItem(new Color(200, 100, 50), "Tasks");
+        
+        // 混合圖例
+        JLabel mixedLabel = new JLabel("Both: ");
+        mixedLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        mixedLabel.setForeground(DAY_TEXT_COLOR);
+        
+        // 創建混合圖例的雙點
+        JPanel mixedDots = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                int dotSize = 6;
+                int y = (getHeight() - dotSize) / 2;
+                
+                // 左邊藍點 (事件)
+                g2.setColor(SELECTED_DATE_BG_COLOR);
+                g2.fillOval(2, y, dotSize, dotSize);
+                
+                // 右邊橘點 (任務)
+                g2.setColor(new Color(200, 100, 50));
+                g2.fillOval(12, y, dotSize, dotSize);
+                
+                g2.dispose();
+            }
+        };
+        mixedDots.setPreferredSize(new Dimension(20, 12));
+        mixedDots.setOpaque(false);
+        
+        JPanel mixedLegend = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        mixedLegend.setOpaque(false);
+        mixedLegend.add(mixedLabel);
+        mixedLegend.add(mixedDots);
+
+        legendPanel.add(eventLegend);
+        legendPanel.add(taskLegend);
+        legendPanel.add(mixedLegend);
+        
+        return legendPanel;
+    }
+    
+    // 創建單個圖例項目
+    private JPanel createLegendItem(Color color, String text) {
+        JPanel item = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        item.setOpaque(false);
+        
+        // 創建色點
+        JPanel dot = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(color);
+                
+                int dotSize = 6;
+                int x = (getWidth() - dotSize) / 2;
+                int y = (getHeight() - dotSize) / 2;
+                g2.fillOval(x, y, dotSize, dotSize);
+                g2.dispose();
+            }
+        };
+        dot.setPreferredSize(new Dimension(10, 12));
+        dot.setOpaque(false);
+        
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("Arial", Font.PLAIN, 12));
+        label.setForeground(DAY_TEXT_COLOR);
+        
+        item.add(dot);
+        item.add(label);
+        
+        return item;
     }
 }
