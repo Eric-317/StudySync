@@ -11,6 +11,26 @@ import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 任務管理面板類
+ * 提供任務的顯示、新增、編輯、刪除等功能介面
+ * 
+ * 主要功能：
+ * - 任務列表顯示和篩選（全部、今日、已完成）
+ * - 分類管理（新增、編輯、刪除分類）
+ * - 任務操作（新增任務、標記完成、刪除任務）
+ * - 支援多種篩選條件組合
+ * - 即時更新任務狀態
+ * 
+ * UI 組件：
+ * - 篩選按鈕組（All、Today、Completed）
+ * - 分類下拉選單及管理按鈕
+ * - 任務列表滾動面板
+ * - 新增任務按鈕
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskPanel extends JPanel {    // 修改為 public 以便其他類訪問
     public final TaskController controller;
     private final CategoryService categoryService;

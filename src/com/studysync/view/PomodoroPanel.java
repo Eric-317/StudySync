@@ -14,17 +14,61 @@ import java.io.File;
 import java.io.IOException;
 import com.studysync.util.AppSettings; // 新增 import
 
+/**
+ * 番茄鐘面板類
+ * 實現番茄工作法計時器功能
+ * 
+ * 主要功能：
+ * - 25分鐘倒數計時器
+ * - 視覺化圓形進度顯示
+ * - 計時器控制（開始、暫停、重置）
+ * - 背景影片播放支援
+ * - 自訂計時時間設定
+ * 
+ * UI 組件：
+ * - 圓形進度條和計時顯示
+ * - 控制按鈕（暫停、重置、設定影片）
+ * - 時間設定滑桿
+ * - 背景影片播放區域
+ * 
+ * 技術特點：
+ * - 使用 Swing Timer 實現精確計時
+ * - 自定義繪製圓形進度條
+ * - 整合應用程式設定管理
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class PomodoroPanel extends JPanel {
-    private int initialMinutes = 25; // Default initial minutes
-    private int initialSeconds = 0;  // Default initial seconds
-    private static final int CIRCLE_DIAMETER = 200; // Fixed diameter for the circle
+    /** 預設初始分鐘數 */
+    private int initialMinutes = 25;
+    
+    /** 預設初始秒數 */
+    private int initialSeconds = 0;
+    
+    /** 圓形進度條直徑 */
+    private static final int CIRCLE_DIAMETER = 200;
+    
+    /** 剩餘秒數 */
     private int secondsLeft = initialMinutes * 60 + initialSeconds;
+    
+    /** 計時器運行狀態 */
     private boolean running = false;
+    
+    /** Swing 計時器實例 */
     private Timer timer;
+    
+    /** 計時顯示標籤 */
     private final JLabel timerLabel = new JLabel();
+    
+    /** 暫停按鈕 */
     private final JButton pauseBtn = new JButton("Pause");
+    
+    /** 重置按鈕 */
     private final JButton resetBtn = new JButton("Reset");
-    private JButton setVideoButton; // 新增按鈕
+    
+    /** 設定影片按鈕 */
+    private JButton setVideoButton;
 
     public PomodoroPanel() {
         try { // Added try for the entire constructor

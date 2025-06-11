@@ -8,13 +8,48 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * 任務服務類
+ * 提供任務相關的業務邏輯服務
+ * 
+ * 主要功能：
+ * - 處理任務新增邏輯
+ * - 提供任務查詢服務（全部、按使用者、按條件篩選）
+ * - 處理任務更新和刪除
+ * - 管理任務完成狀態
+ * - 提供任務統計資訊
+ * 
+ * 業務規則：
+ * - 新任務預設為未完成狀態
+ * - 任務必須屬於特定使用者
+ * - 支援向後相容性
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskService {
+    /** 任務資料存取層實例 */
     private final TaskRepository taskRepository;
 
+    /**
+     * 建構任務服務
+     * 
+     * @param taskRepository 任務資料存取層實例
+     */
     public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
     
+    /**
+     * 新增任務服務
+     * 建立新任務並儲存到資料庫
+     * 
+     * @param title 任務標題
+     * @param category 任務分類
+     * @param dueTime 任務到期時間
+     * @param userId 任務所屬的使用者 ID
+     * @return 新增成功的 Task 物件，失敗時返回 null
+     */
     public Task addTask(String title, String category, LocalDateTime dueTime, int userId) {
         Task task = new Task(title, dueTime, category, false, userId);
         try {
@@ -27,11 +62,24 @@ public class TaskService {
         }
     }
     
-    // 保持向後兼容性
+    /**
+     * 新增任務服務（保持向後相容性）
+     * 使用預設使用者 ID (-1)
+     * 
+     * @param title 任務標題
+     * @param category 任務分類
+     * @param dueTime 任務到期時間
+     * @return 新增成功的 Task 物件，失敗時返回 null
+     */
     public Task addTask(String title, String category, LocalDateTime dueTime) {
         return addTask(title, category, dueTime, -1); // 使用預設用戶ID
     }
 
+    /**
+     * 取得所有任務
+     * 
+     * @return 所有任務的清單，失敗時返回空清單
+     */
     public List<Task> getAllTasks() {
         try {
             return taskRepository.findAll();
@@ -41,7 +89,13 @@ public class TaskService {
         }
     }
     
-    // 根據用戶ID獲取任務
+    /**
+     * 根據使用者 ID 取得任務
+     * 只返回指定使用者的任務
+     * 
+     * @param userId 使用者 ID
+     * @return 該使用者的任務清單，失敗時返回空清單
+     */
     public List<Task> getTasksByUserId(int userId) {
         try {
             return taskRepository.findByUserId(userId);

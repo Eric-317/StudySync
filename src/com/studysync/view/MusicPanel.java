@@ -21,12 +21,48 @@ import java.util.Arrays; // Add for Arrays.asList
 
 import com.studysync.util.AppSettings; // Import AppSettings
 
+/**
+ * 音樂播放面板類
+ * 提供背景音樂播放功能，支援學習時的專注氛圍營造
+ * 
+ * 主要功能：
+ * - 音樂檔案管理（新增、刪除、匯入）
+ * - 音樂播放控制（播放、暫停、上一首、下一首）
+ * - 音量控制和靜音功能
+ * - 播放模式設定（循環播放等）
+ * - 支援多種音訊格式（WAV、MP3 等）
+ * 
+ * UI 組件：
+ * - 音樂清單顯示
+ * - 播放控制按鈕組
+ * - 音量滑桿
+ * - 進度顯示
+ * - 檔案管理按鈕
+ * 
+ * 技術特點：
+ * - 使用 Java Sound API 進行音訊播放
+ * - 支援檔案拖放和匯入
+ * - 整合應用程式設定管理
+ * - 自動音樂目錄管理
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class MusicPanel extends JPanel {
+    /** 音樂檔案路徑清單 */
     private List<String> musicFiles;
+    
+    /** 當前播放的音樂索引 */
     private int currentIndex = 0;
+    
+    /** 音訊播放剪輯物件 */
     private Clip audioClip;
+    
+    /** 音量控制物件 */
     private FloatControl volumeControl;
-    private boolean isPlaying = false;    // UI components
+    
+    /** 播放狀態標記 */
+    private boolean isPlaying = false;// UI components
     private JLabel titleLabel;
     private JLabel currentMusicLabel;
     private JButton playPauseButton;

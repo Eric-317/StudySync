@@ -3,6 +3,12 @@
 ## 概述
 StudySync 是一個基於 Java Swing 開發的學習管理平台，具備任務管理、番茄鐘計時、音樂播放、日曆事件等功能。
 
+**🎯 最新更新：已為所有核心程式檔案添加詳細的中文註解**
+- 所有類別都有完整的 JavaDoc 註解
+- 每個方法都有詳細的參數和返回值說明
+- 包含業務邏輯和設計模式的解釋
+- 提供程式碼維護和擴展的指引
+
 ## 系統需求
 
 ### 必要環境
@@ -79,6 +85,71 @@ java -cp ".:src:libs/sqlite-jdbc-3.45.3.0.jar:libs/slf4j-api-2.0.7.jar:libs/slf4
    - 音樂：背景音樂播放
    - 日曆：事件管理
    - 設定：個人設定調整
+
+## 程式架構說明
+
+### 分層架構設計
+StudySync 採用經典的 MVC（Model-View-Controller）分層架構：
+
+```
+src/com/studysync/
+├── model/           # 資料模型層
+│   ├── User.java         # 使用者資料模型
+│   ├── Task.java         # 任務資料模型
+│   └── CalendarEvent.java # 行事曆事件模型
+├── view/            # 使用者介面層
+│   ├── MainWindow.java    # 主視窗（已註解）
+│   ├── LoginPanel.java    # 登入面板
+│   ├── TaskPanel.java     # 任務管理面板
+│   └── ...              # 其他 UI 元件
+├── controller/      # 控制層
+│   ├── UserController.java # 使用者控制器（已註解）
+│   ├── TaskController.java # 任務控制器（已註解）
+│   └── ...               # 其他控制器
+├── service/         # 業務邏輯層
+│   ├── UserService.java   # 使用者服務（已註解）
+│   ├── TaskService.java   # 任務服務
+│   └── ...              # 其他服務
+├── repository/      # 資料存取層
+│   ├── UserRepository.java # 使用者資料存取（已註解）
+│   ├── TaskRepository.java # 任務資料存取
+│   └── ...               # 其他資料存取
+└── util/            # 工具類
+    ├── DBUtil.java       # 資料庫工具（已註解）
+    ├── AppSettings.java  # 應用設定（已註解）
+    └── DatabaseInitializer.java # 資料庫初始化（已註解）
+```
+
+### 已加註解的核心類別
+
+#### 🔧 工具類（Util Layer）
+- **AppSettings.java**: 應用程式設定管理，單例模式實現
+- **DBUtil.java**: 資料庫連線管理，支援 SQLite/MySQL 雙資料庫
+- **DatabaseInitializer.java**: 資料庫表結構初始化
+
+#### 📊 資料模型（Model Layer）
+- **User.java**: 使用者資料模型，包含完整的 getter/setter
+- **Task.java**: 任務資料模型，支援多種建構方式
+
+#### 🎮 控制層（Controller Layer）
+- **UserController.java**: 使用者相關操作控制
+- **TaskController.java**: 任務管理操作控制
+
+#### 🔄 服務層（Service Layer）
+- **UserService.java**: 使用者業務邏輯處理
+
+#### 💾 資料存取層（Repository Layer）
+- **UserRepository.java**: 使用者資料庫操作
+
+#### 🖥️ 介面層（View Layer）
+- **MainWindow.java**: 主視窗及導航控制
+
+### 註解內容包含
+- **類別描述**: 每個類別的用途和責任
+- **方法說明**: 詳細的參數、返回值和業務邏輯說明
+- **設計模式**: 如單例模式、MVC 模式的應用說明
+- **使用範例**: 重要方法的使用方式
+- **注意事項**: 開發和維護時需要注意的要點
 
 ## 檔案結構說明
 

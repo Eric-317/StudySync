@@ -7,10 +7,43 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * 登入面板類
+ * 提供使用者登入功能的 UI 介面
+ * 
+ * 主要功能：
+ * - 使用者名稱和密碼輸入
+ * - 登入驗證處理
+ * - 登入成功後導航到主界面
+ * - 註冊頁面導航
+ * - 錯誤訊息顯示
+ * 
+ * UI 組件：
+ * - Logo 和應用程式標題
+ * - 使用者名稱輸入欄位
+ * - 密碼輸入欄位
+ * - 登入按鈕
+ * - 註冊連結
+ * 
+ * 設計特點：
+ * - 卡片式設計風格
+ * - 居中布局
+ * - 統一的色彩主題
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class LoginPanel extends JPanel {
+    /** 使用者控制器實例 */
     private final UserController userController = new UserController();
-    private final MainWindow mainWindow;
-
+    
+    /** 主視窗引用，用於頁面導航 */
+    private final MainWindow mainWindow;    /**
+     * 建構登入面板
+     * 初始化 UI 組件和事件監聽器
+     * 
+     * @param mainWindow 主視窗引用，用於登入成功後的頁面導航
+     */
     public LoginPanel(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
         setLayout(new GridBagLayout());

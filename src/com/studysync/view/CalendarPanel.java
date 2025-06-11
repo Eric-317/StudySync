@@ -22,6 +22,31 @@ import com.studysync.controller.CalendarEventController;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+/**
+ * 行事曆面板類
+ * 提供月曆顯示、事件管理、任務整合等功能
+ * 
+ * 主要功能：
+ * - 月曆視圖顯示（上一月/下一月導航）
+ * - 行事曆事件管理（新增、編輯、刪除事件）
+ * - 任務整合顯示（將任務作為事件顯示在行事曆上）
+ * - 多使用者支援（事件和任務隔離）
+ * - 日期選擇和事件詳細資訊顯示
+ * 
+ * UI 組件：
+ * - 月曆標題和導航按鈕
+ * - 7x7 網格月曆顯示
+ * - 事件列表顯示面板
+ * - 事件新增和編輯對話框
+ * 
+ * 技術特點：
+ * - 支援任務和事件的統一顯示
+ * - 即時資料更新和同步
+ * - 使用者登入狀態檢查
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class CalendarPanel extends JPanel {
 
     // Fields from CalendarDemo structure

@@ -5,8 +5,33 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.ResultSet;
 
+/**
+ * 資料庫初始化工具類
+ * 負責建立所有必要的資料表和預設資料
+ * 
+ * 主要功能：
+ * - 自動偵測資料庫類型（SQLite 或 MySQL）
+ * - 建立使用者、任務、分類、行事曆事件等資料表
+ * - 插入預設的任務分類資料
+ * - 處理不同資料庫的 SQL 語法差異
+ * - 提供友善的錯誤訊息
+ * 
+ * 支援的資料表：
+ * - users: 使用者資料表
+ * - tasks: 任務資料表
+ * - categories: 分類資料表
+ * - calendar_events: 行事曆事件資料表
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class DatabaseInitializer {
-      public static void createTables() {
+    
+    /**
+     * 建立所有必要的資料表
+     * 根據目前設定的資料庫類型選擇對應的建表語句
+     */
+    public static void createTables() {
         String dbType = DBUtil.getDatabaseType();
         System.out.println("正在初始化 " + dbType + " 資料庫...");
         

@@ -8,13 +8,43 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 任務資料存取層
+ * 負責處理任務相關的資料庫操作
+ * 
+ * 主要功能：
+ * - 新增任務到資料庫
+ * - 查詢任務（全部、按使用者、按條件篩選）
+ * - 更新任務資訊
+ * - 刪除任務
+ * - 標記任務完成狀態
+ * 
+ * 資料表結構：
+ * - tasks (uid, title, due_time, category, completed, user_id)
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskRepository {
+    /** 資料庫連線物件 */
     private final Connection conn;
 
+    /**
+     * 建構任務資料存取層
+     * 
+     * @param conn 資料庫連線物件
+     */
     public TaskRepository(Connection conn) {
         this.conn = conn;
     }
     
+    /**
+     * 新增任務到資料庫
+     * 
+     * @param task 要新增的任務物件
+     * @return 新增成功的任務 ID
+     * @throws SQLException 當資料庫操作失敗時拋出
+     */
     public int insert(Task task) throws SQLException {
         String sql = "INSERT INTO tasks (title, due_time, category, completed, user_id) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -35,6 +65,7 @@ public class TaskRepository {
                 throw new SQLException("任務建立失敗，沒有資料被插入");
             }
             
+            // 取得自動產生的主鍵並設定到任務物件中
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int id = generatedKeys.getInt(1);
@@ -48,6 +79,12 @@ public class TaskRepository {
         }
     }
     
+    /**
+     * 查詢所有任務
+     * 
+     * @return 所有任務的清單
+     * @throws SQLException 當資料庫操作失敗時拋出
+     */
     public List<Task> findAll() throws SQLException {
         List<Task> tasks = new ArrayList<>();
         String sql = "SELECT * FROM tasks ORDER BY uid DESC";

@@ -5,18 +5,50 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.io.File;
 
+/**
+ * 資料庫連線工具類
+ * 提供統一的資料庫連線管理，支援 SQLite 和 MySQL 兩種資料庫
+ * 
+ * 主要功能：
+ * - 管理 SQLite 本地資料庫連線
+ * - 管理 MySQL 遠程資料庫連線
+ * - 動態切換資料庫類型
+ * - 自動載入資料庫驅動程式
+ * - 提供連線池管理（基礎版本）
+ * 
+ * 使用方式：
+ * 1. 使用 SQLite：直接呼叫 getConnection()
+ * 2. 使用 MySQL：先呼叫 configureMysql() 設定連線資訊，再呼叫 getConnection()
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class DBUtil {
-    // SQLite 設定
+    /** SQLite 資料庫檔案名稱 */
     private static final String SQLITE_DB_NAME = "studysync.db";
+    
+    /** SQLite 連線 URL */
     private static final String SQLITE_URL = "jdbc:sqlite:" + SQLITE_DB_NAME;
     
-    // MySQL 設定 (動態配置)
+    /** MySQL 連線 URL（動態設定） */
     private static String mysqlUrl = null;
-    private static String mysqlUsername = null;
-    private static String mysqlPassword = null;
-    private static boolean useMysql = false;
     
-    // 設定 MySQL 連線資訊
+    /** MySQL 使用者名稱（動態設定） */
+    private static String mysqlUsername = null;
+    
+    /** MySQL 密碼（動態設定） */
+    private static String mysqlPassword = null;
+    
+    /** 是否使用 MySQL 資料庫的旗標 */
+    private static boolean useMysql = false;    
+    /**
+     * 設定 MySQL 資料庫連線資訊
+     * 呼叫此方法後，getConnection() 將使用 MySQL 連線
+     * 
+     * @param url MySQL 資料庫連線 URL
+     * @param username MySQL 使用者名稱
+     * @param password MySQL 密碼
+     */
     public static void configureMysql(String url, String username, String password) {
         mysqlUrl = url;
         mysqlUsername = username;
@@ -24,12 +56,21 @@ public class DBUtil {
         useMysql = true;
     }
     
-    // 使用 SQLite
+    /**
+     * 切換為使用 SQLite 資料庫
+     * 呼叫此方法後，getConnection() 將使用 SQLite 連線
+     */
     public static void useSQLite() {
         useMysql = false;
     }
     
-    // 獲取新的資料庫連接
+    /**
+     * 取得資料庫連線
+     * 根據目前設定的資料庫類型返回對應的連線
+     * 
+     * @return 資料庫連線物件
+     * @throws SQLException 當連線失敗時拋出例外
+     */
     public static Connection getConnection() throws SQLException {
         if (useMysql && mysqlUrl != null) {
             return getMysqlConnection();
@@ -37,7 +78,15 @@ public class DBUtil {
             return getSQLiteConnection();
         }
     }
-      private static Connection getSQLiteConnection() throws SQLException {
+    
+    /**
+     * 建立 SQLite 資料庫連線
+     * 自動載入 SQLite JDBC 驅動程式，並建立或連接到本地資料庫檔案
+     * 
+     * @return SQLite 資料庫連線
+     * @throws SQLException 當連線失敗或驅動程式未找到時拋出例外
+     */
+    private static Connection getSQLiteConnection() throws SQLException {
         try {
             // 嘗試加載 SQLite 驅動
             Class.forName("org.sqlite.JDBC");
@@ -67,7 +116,15 @@ public class DBUtil {
         
         return conn;
     }
-      private static Connection getMysqlConnection() throws SQLException {
+    
+    /**
+     * 建立 MySQL 資料庫連線
+     * 自動載入 MySQL JDBC 驅動程式，並連接到遠程 MySQL 伺服器
+     * 
+     * @return MySQL 資料庫連線
+     * @throws SQLException 當連線失敗或驅動程式未找到時拋出例外
+     */
+    private static Connection getMysqlConnection() throws SQLException {
         try {
             // 確保 MySQL 驅動已加載
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -87,12 +144,21 @@ public class DBUtil {
         return conn;
     }
     
-    // 檢查目前使用的資料庫類型
+    /**
+     * 取得目前使用的資料庫類型
+     * 
+     * @return 資料庫類型字串："MySQL" 或 "SQLite"
+     */
     public static String getDatabaseType() {
         return useMysql ? "MySQL" : "SQLite";
     }
     
-    // 安全地關閉連接
+    /**
+     * 安全地關閉資料庫連線
+     * 檢查連線是否為 null 且未關閉，然後安全地關閉連線
+     * 
+     * @param conn 要關閉的資料庫連線
+     */
     public static void closeConnection(Connection conn) {
         if (conn != null) {
             try {
