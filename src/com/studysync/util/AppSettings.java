@@ -35,12 +35,6 @@ public class AppSettings {
         // 設定預設影片路徑，可以是您目前使用的影片，或者是一個空字串表示不播放
         properties.setProperty(POMODORO_VIDEO_PATH_KEY, "src/com/studysync/assets/video/大江大海江大海.mp4");
         properties.setProperty(CUSTOM_MUSIC_PATHS_KEY, ""); // Default to empty string
-
-        // 設定預設的資料庫連線參數 (主要用於開發或首次執行)
-        properties.setProperty("db.url", "jdbc:mysql://localhost:3306/studysync?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true");
-        properties.setProperty("db.username", "root");
-        properties.setProperty("db.password", ""); // 預設為空密碼，建議使用者在 app_settings.properties 中修改
-
         saveSettings();
     }
 
@@ -60,15 +54,6 @@ public class AppSettings {
     public void setCustomMusicPaths(String paths) {
         properties.setProperty(CUSTOM_MUSIC_PATHS_KEY, paths);
         saveSettings();
-    }
-
-    // 新增公開的 getProperty 方法
-    public String getProperty(String key, String defaultValue) {
-        return properties.getProperty(key, defaultValue);
-    }
-
-    public String getProperty(String key) {
-        return properties.getProperty(key);
     }
 
     public void saveSettings() {
