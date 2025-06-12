@@ -1,5 +1,5 @@
 ### IntelliJ IDEA ###
-out/
+# out/ - 已移除，允許編譯檔案被追蹤
 !**/src/main/**/out/
 !**/src/test/**/out/
 
