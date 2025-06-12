@@ -3,10 +3,33 @@ package com.studysync.util;
 import javax.swing.*;
 
 /**
- * 應用程式啟動前的系統檢查
+ * 應用程式啟動檢查工具類
+ * 在應用程式啟動前檢查系統環境和依賴項
+ * 
+ * 主要功能：
+ * - 檢查必要的 JDBC 驅動程式
+ * - 驗證 Java 運行環境
+ * - 檢查資料庫連線能力
+ * - 提供錯誤診斷和解決建議
+ * - 顯示系統資訊和版本資訊
+ * 
+ * 檢查項目：
+ * - SQLite JDBC 驅動（必要）
+ * - MySQL JDBC 驅動（可選）
+ * - Java 版本相容性
+ * - 記憶體和系統資源
+ * 
+ * @author StudySync Team
+ * @version 1.0
  */
 public class StartupChecker {
     
+    /**
+     * 檢查應用程式依賴項
+     * 驗證所有必要的 JAR 檔案和驅動程式是否可用
+     * 
+     * @return true 如果所有依賴項都可用，false 否則
+     */
     public static boolean checkDependencies() {
         boolean allOk = true;
         StringBuilder errorMessage = new StringBuilder();
@@ -41,11 +64,16 @@ public class StartupChecker {
             );
             return false;
         }
-        
-        System.out.println("✅ 所有依賴檢查通過");
+          System.out.println("✅ 所有依賴檢查通過");
         return true;
     }
     
+    /**
+     * 檢查 SQLite JDBC 驅動是否可用
+     * SQLite 是應用程式的預設資料庫，此驅動為必要依賴
+     * 
+     * @return true 如果 SQLite 驅動可用，false 否則
+     */
     private static boolean checkSQLiteDriver() {
         try {
             Class.forName("org.sqlite.JDBC");
@@ -57,6 +85,12 @@ public class StartupChecker {
         }
     }
     
+    /**
+     * 檢查 MySQL JDBC 驅動是否可用
+     * MySQL 驅動為可選依賴，僅在使用 MySQL 資料庫時需要
+     * 
+     * @return true 如果 MySQL 驅動可用，false 否則
+     */
     private static boolean checkMySQLDriver() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

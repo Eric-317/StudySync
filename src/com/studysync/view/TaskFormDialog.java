@@ -11,18 +11,70 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 任務表單對話框類
+ * 提供新增和編輯任務的介面
+ * 
+ * 主要功能：
+ * - 新增新的任務
+ * - 編輯現有任務的詳細資訊
+ * - 設置任務標題、分類、截止時間和完成狀態
+ * - 刪除現有任務
+ * - 動態載入分類列表
+ * - 表單驗證和資料處理
+ * 
+ * UI 組件：
+ * - 任務標題輸入欄位
+ * - 分類下拉選單
+ * - 截止時間選擇器
+ * - 完成狀態核取方塊
+ * - 儲存和刪除按鈕
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskFormDialog extends JDialog {
+    /** 任務標題輸入欄位 */
     private final JTextField titleField = new JTextField();
+    
+    /** 分類下拉選單 */
     private final JComboBox<String> categoryBox = new JComboBox<>();
+    
+    /** 截止時間選擇器 */
     private final JSpinner dateSpinner = new JSpinner(new SpinnerDateModel());
+    
+    /** 完成狀態核取方塊 */
     private final JCheckBox completedCheckBox = new JCheckBox("Completed");
+    
+    /** 提交按鈕 */
     private final JButton submitButton = new JButton("Save");
+    
+    /** 刪除按鈕 */
     private final JButton deleteButton = new JButton("Delete");
+    
+    /** 正在編輯的任務（null表示新增任務） */
     private final Task editingTask;
 
+    /**
+     * 建構新任務對話框
+     * 
+     * @param parent 父視窗
+     * @param controller 任務控制器
+     * @param onTaskAdded 任務操作完成後的回調函數
+     */
     public TaskFormDialog(JFrame parent, TaskController controller, Runnable onTaskAdded) {
         this(parent, controller, onTaskAdded, null);
-    }    public TaskFormDialog(JFrame parent, TaskController controller, Runnable onTaskAdded, Task task) {        super(parent, task == null ? "Add New Task" : "Edit Task", true);
+    }
+    
+    /**
+     * 建構任務表單對話框
+     * 
+     * @param parent 父視窗
+     * @param controller 任務控制器
+     * @param onTaskAdded 任務操作完成後的回調函數
+     * @param task 要編輯的任務（null表示新增任務）
+     */
+    public TaskFormDialog(JFrame parent, TaskController controller, Runnable onTaskAdded, Task task) {super(parent, task == null ? "Add New Task" : "Edit Task", true);
         this.editingTask = task;
         setLayout(new BorderLayout());
         setSize(400, 350); // 增加寬度從350到400

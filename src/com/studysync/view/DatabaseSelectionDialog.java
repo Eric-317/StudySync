@@ -8,22 +8,64 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * 資料庫選擇對話框類
+ * 提供資料庫類型選擇和初始化功能
+ * 
+ * 主要功能：
+ * - SQLite 和 MySQL 資料庫類型選擇
+ * - 資料庫連線設定和測試
+ * - 資料庫初始化和表格建立
+ * - 使用者友好的設定流程引導
+ * - 錯誤處理和回饋機制
+ * 
+ * UI 組件：
+ * - 資料庫類型選擇單選按鈕
+ * - 各資料庫類型的說明文字
+ * - 繼續和取消按鈕
+ * 
+ * 設定流程：
+ * 1. 選擇資料庫類型（SQLite 或 MySQL）
+ * 2. 若選擇 MySQL，開啟資料庫配置對話框
+ * 3. 測試連線並初始化資料庫
+ * 4. 建立必要的資料表結構
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class DatabaseSelectionDialog extends JDialog {
+    /** SQLite 資料庫選擇單選按鈕 */
     private JRadioButton sqliteRadio;
+    
+    /** MySQL 資料庫選擇單選按鈕 */
     private JRadioButton mysqlRadio;
+    
+    /** 繼續按鈕 */
     private JButton continueButton;
+    
+    /** 取消按鈕 */
     private JButton cancelButton;
+    
+    /** 配置是否完成的標誌 */
     private boolean configurationComplete = false;
     
+    /**
+     * 建構資料庫選擇對話框
+     * 
+     * @param parent 父視窗
+     */
     public DatabaseSelectionDialog(JFrame parent) {
         super(parent, "選擇資料庫類型", true);
         initializeComponents();
         setupLayout();        setupEventHandlers();
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(650, 400);
-        setLocationRelativeTo(parent);
+        setSize(650, 400);        setLocationRelativeTo(parent);
     }
     
+    /**
+     * 初始化UI組件
+     * 設置單選按鈕和按鈕群組
+     */
     private void initializeComponents() {
         sqliteRadio = new JRadioButton("SQLite（推薦 - 零配置）", true);
         mysqlRadio = new JRadioButton("MySQL（需要配置）");

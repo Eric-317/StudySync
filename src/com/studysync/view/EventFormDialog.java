@@ -9,23 +9,71 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
 
+/**
+ * 事件表單對話框類
+ * 提供新增和編輯日曆事件的介面
+ * 
+ * 主要功能：
+ * - 新增新的日曆事件
+ * - 編輯現有的日曆事件
+ * - 設置事件時間和描述
+ * - 刪除現有事件
+ * - 表單驗證和資料處理
+ * 
+ * UI 組件：
+ * - 時間選擇器（小時:分鐘格式）
+ * - 事件描述輸入欄位
+ * - 儲存和刪除按鈕
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class EventFormDialog extends JDialog {
+    /** 時間選擇器組件 */
     private final JSpinner timeSpinner;
+    
+    /** 事件描述輸入欄位 */
     private final JTextField descriptionField = new JTextField(20);
+    
+    /** 儲存按鈕 */
     private final JButton saveButton = new JButton("Save");
+    
+    /** 刪除按鈕 */
     private final JButton deleteButton = new JButton("Delete");
+    
+    /** 正在編輯的事件（null表示新增事件） */
     private final CalendarEvent editingEvent;
+    
+    /** 事件日期 */
     private final LocalDate eventDate;
+    
+    /** 儲存事件的回調函數 */
     private final java.util.function.Consumer<CalendarEvent> onSave;
+    
+    /** 刪除事件的回調函數 */
     private final Runnable onDelete;
 
-    // Constructor for new event
+    /**
+     * 建構新事件對話框
+     * 
+     * @param parent 父視窗
+     * @param date 事件日期
+     * @param onSave 儲存事件的回調函數
+     */
     public EventFormDialog(Frame parent, LocalDate date,
                            java.util.function.Consumer<CalendarEvent> onSave) {
         this(parent, date, null, onSave, null);
     }
 
-    // Constructor for editing existing event
+    /**
+     * 建構編輯事件對話框
+     * 
+     * @param parent 父視窗
+     * @param date 事件日期
+     * @param event 要編輯的事件（null表示新增事件）
+     * @param onSave 儲存事件的回調函數
+     * @param onDelete 刪除事件的回調函數
+     */
     public EventFormDialog(Frame parent, LocalDate date,
                            CalendarEvent event,
                            java.util.function.Consumer<CalendarEvent> onSave,

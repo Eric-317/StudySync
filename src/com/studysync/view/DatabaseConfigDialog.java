@@ -9,20 +9,71 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * 資料庫配置對話框類
+ * 提供 MySQL 資料庫連線設定和測試功能
+ * 
+ * 主要功能：
+ * - MySQL 資料庫連線參數設定
+ * - 資料庫連線測試功能
+ * - 自動建立資料庫（如不存在）
+ * - 連線參數驗證和儲存
+ * - 錯誤處理和使用者回饋
+ * 
+ * UI 組件：
+ * - 伺服器地址輸入欄位
+ * - 資料庫名稱輸入欄位
+ * - 使用者名稱和密碼輸入欄位
+ * - 測試連線、儲存和取消按鈕
+ * 
+ * 設定流程：
+ * 1. 輸入 MySQL 伺服器連線資訊
+ * 2. 測試連線確認可用性
+ * 3. 自動建立指定資料庫
+ * 4. 儲存設定供應用程式使用
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class DatabaseConfigDialog extends JDialog {
+    /** 資料庫伺服器 URL 輸入欄位 */
     private JTextField urlField;
+    
+    /** 使用者名稱輸入欄位 */
     private JTextField usernameField;
+    
+    /** 密碼輸入欄位 */
     private JPasswordField passwordField;
+    
+    /** 資料庫名稱輸入欄位 */
     private JTextField databaseNameField;
+    
+    /** 測試連線按鈕 */
     private JButton testConnectionButton;
+    
+    /** 儲存設定按鈕 */
     private JButton saveButton;
+    
+    /** 取消按鈕 */
     private JButton cancelButton;
+    
+    /** 配置是否成功的標誌 */
     private boolean configurationSuccessful = false;
     
+    /** 最終確認的資料庫 URL */
     private String finalUrl;
+    
+    /** 最終確認的使用者名稱 */
     private String finalUsername;
+    
+    /** 最終確認的密碼 */
     private String finalPassword;
     
+    /**
+     * 建構資料庫配置對話框
+     * 
+     * @param parent 父視窗
+     */
     public DatabaseConfigDialog(JFrame parent) {
         super(parent, "資料庫配置", true);
         initializeComponents();

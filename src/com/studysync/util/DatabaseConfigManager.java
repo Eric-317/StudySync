@@ -4,18 +4,40 @@ import java.io.*;
 import java.util.Properties;
 
 /**
- * 資料庫配置管理工具
- * 用於保存和載入用戶的資料庫配置偏好
+ * 資料庫配置管理工具類
+ * 負責保存和載入使用者的資料庫配置偏好設定
+ * 
+ * 主要功能：
+ * - 資料庫類型和連線參數的持久化儲存
+ * - 配置檔案的讀取和寫入
+ * - MySQL 連線資訊管理（不包含密碼）
+ * - 預設配置提供和錯誤處理
+ * 
+ * 配置項目：
+ * - 資料庫類型（SQLite 或 MySQL）
+ * - MySQL 伺服器 URL
+ * - MySQL 使用者名稱
+ * 
+ * 注意事項：
+ * - 基於安全考量，密碼不會儲存到檔案中
+ * - 每次使用 MySQL 時需要重新輸入密碼
+ * - 配置檔案採用 Properties 格式
+ * 
+ * @author StudySync Team
+ * @version 1.0
  */
-public class DatabaseConfigManager {
-    private static final String CONFIG_FILE = "database_config.properties";
+public class DatabaseConfigManager {    private static final String CONFIG_FILE = "database_config.properties";
     private static final String DB_TYPE_KEY = "database.type";
     private static final String MYSQL_URL_KEY = "mysql.url";
     private static final String MYSQL_USERNAME_KEY = "mysql.username";
     // 注意：密碼不會保存到檔案中，每次都需要重新輸入
     
     /**
-     * 保存資料庫配置
+     * 保存資料庫配置到本地檔案
+     * 
+     * @param databaseType 資料庫類型（"SQLite" 或 "MySQL"）
+     * @param mysqlUrl MySQL 資料庫 URL（僅當使用 MySQL 時）
+     * @param mysqlUsername MySQL 使用者名稱（僅當使用 MySQL 時）
      */
     public static void saveConfig(String databaseType, String mysqlUrl, String mysqlUsername) {
         Properties props = new Properties();
@@ -31,11 +53,13 @@ public class DatabaseConfigManager {
             System.out.println("✅ 資料庫配置已保存");
         } catch (IOException e) {
             System.err.println("❌ 保存資料庫配置失敗: " + e.getMessage());
-        }
-    }
+        }    }
     
     /**
-     * 載入資料庫配置
+     * 從本地檔案載入資料庫配置
+     * 如果配置檔案不存在，則返回預設配置
+     * 
+     * @return DatabaseConfig 物件，包含載入的配置資訊
      */
     public static DatabaseConfig loadConfig() {
         File configFile = new File(CONFIG_FILE);

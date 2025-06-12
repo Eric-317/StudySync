@@ -11,14 +11,54 @@ import java.time.format.DateTimeFormatter;
 import java.util.function.Consumer;
 import java.time.LocalDate;
 
+/**
+ * 事件項目面板類
+ * 顯示單個日曆事件的詳細資訊和操作介面
+ * 
+ * 主要功能：
+ * - 顯示事件基本資訊（時間、描述、類型）
+ * - 區分事件和任務類型的視覺顯示
+ * - 點擊編輯事件功能
+ * - 事件類型顏色區分
+ * - 時間格式化顯示
+ * 
+ * UI 組件：
+ * - 事件標題標籤
+ * - 時間和類型資訊標籤
+ * - 滑鼠點擊事件處理
+ * 
+ * 視覺特效：
+ * - 事件和任務使用不同顏色區分
+ * - 統一的字體和間距設計
+ * - 懸停效果和點擊反饋
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class EventItemPanel extends JPanel {
+    /** 背景顏色常數 */
     private static final Color BACKGROUND_COLOR = Color.WHITE;
-    // 更新字體以匹配 TaskItemPanel 風格，或使其相似
-    private static final Font TITLE_FONT = new Font("微軟正黑體", Font.BOLD, 16); // 類似任務標題
-    private static final Font TIME_INFO_FONT = new Font("微軟正黑體", Font.PLAIN, 12); // 類似任務時間
+    
+    /** 標題字體（與 TaskItemPanel 保持一致） */
+    private static final Font TITLE_FONT = new Font("微軟正黑體", Font.BOLD, 16);
+    
+    /** 時間資訊字體 */
+    private static final Font TIME_INFO_FONT = new Font("微軟正黑體", Font.PLAIN, 12);
+    
+    /** 標題顏色 */
     private static final Color TITLE_COLOR = new Color(30, 30, 30);
+    
+    /** 時間資訊顏色 */
     private static final Color TIME_INFO_COLOR = new Color(120, 130, 150);
 
+    /**
+     * 建構事件項目面板
+     * 
+     * @param date 事件日期
+     * @param event 要顯示的事件物件
+     * @param onSave 儲存事件的回調函數
+     * @param onDelete 刪除事件的回調函數
+     */
     public EventItemPanel(LocalDate date,
                           CalendarEvent event,
                           Consumer<CalendarEvent> onSave,

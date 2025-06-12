@@ -7,13 +7,50 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
+/**
+ * 任務詳細資訊對話框類
+ * 提供查看和編輯任務詳細資訊的介面
+ * 
+ * 主要功能：
+ * - 顯示任務詳細資訊
+ * - 編輯任務標題
+ * - 修改任務完成狀態
+ * - 刪除任務功能
+ * - 任務狀態即時更新
+ * 
+ * UI 組件：
+ * - 任務標題編輯欄位
+ * - 完成狀態核取方塊
+ * - 儲存和刪除按鈕
+ * 
+ * 注意：此類功能與 TaskFormDialog 有重疊，
+ * 在實際應用中建議統一使用 TaskFormDialog
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskDetailDialog extends JDialog {
+    /** 任務控制器，處理任務相關業務邏輯 */
     private final TaskController controller = new TaskController();
+    
+    /** 任務標題輸入欄位 */
     private final JTextField titleField = new JTextField();
+    
+    /** 完成狀態核取方塊 */
     private final JCheckBox completedCheckBox = new JCheckBox("Completed");
+    
+    /** 儲存按鈕 */
     private final JButton saveButton = new JButton("Save");
+    
+    /** 刪除按鈕 */
     private final JButton deleteButton = new JButton("Delete");
 
+    /**
+     * 建構任務詳細資訊對話框
+     * 
+     * @param taskPanel 父級任務面板，用於任務操作後的刷新
+     * @param task 要顯示的任務物件
+     */
     public TaskDetailDialog(TaskPanel taskPanel, Task task) {
         super((JFrame) SwingUtilities.getWindowAncestor(taskPanel), "Task Details", true);
         setLayout(new BorderLayout());

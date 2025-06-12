@@ -10,14 +10,54 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 
+/**
+ * 任務項目面板類
+ * 顯示單個任務的詳細資訊和操作介面
+ * 
+ * 主要功能：
+ * - 顯示任務基本資訊（標題、截止時間、分類）
+ * - 任務完成狀態顯示
+ * - 分類標籤顏色區分
+ * - 點擊編輯任務功能
+ * - 完成/未完成狀態視覺化
+ * 
+ * UI 組件：
+ * - 任務完成狀態核取方塊
+ * - 任務標題和截止時間標籤
+ * - 分類標籤（帶顏色區分）
+ * - 滑鼠點擊事件處理
+ * 
+ * 視覺特效：
+ * - 不同分類使用不同顏色標籤
+ * - 已完成任務使用刪除線效果
+ * - 懸停效果和點擊反饋
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class TaskItemPanel extends JPanel {
+    /** 學習分類的顏色 */
     private final Color studyingColor = new Color(102, 153, 255);
+    
+    /** 作業分類的顏色 */
     private final Color homeworkColor = new Color(102, 204, 153);
+    
+    /** 寫作分類的顏色 */
     private final Color writingColor = new Color(255, 204, 102);
+    
+    /** 會議分類的顏色 */
     private final Color meetingColor = new Color(178, 153, 255);
-    private final TaskPanel taskPanel; // Added field for TaskPanel instance
+    
+    /** 父級任務面板引用，用於任務編輯後的刷新 */
+    private final TaskPanel taskPanel;
 
-    public TaskItemPanel(Task task, TaskPanel taskPanel) { // Modified constructor
+    /**
+     * 建構任務項目面板
+     * 
+     * @param task 要顯示的任務物件
+     * @param taskPanel 父級任務面板引用
+     */
+    public TaskItemPanel(Task task, TaskPanel taskPanel) {
         this.taskPanel = taskPanel; // Store TaskPanel instance
         try { // Added try for the entire constructor
             setLayout(new BorderLayout());

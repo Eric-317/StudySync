@@ -10,19 +10,59 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.swing.border.EmptyBorder;
 
+/**
+ * 設定面板類
+ * 提供用戶帳戶設定和個人資料管理功能
+ * 
+ * 主要功能：
+ * - 顯示用戶帳戶資訊（電子郵件、用戶ID、出生日期）
+ * - 變更密碼功能
+ * - 編輯出生日期功能
+ * - 登出功能
+ * - 用戶資訊即時更新
+ * 
+ * UI 組件：
+ * - 帳戶資訊顯示區域
+ * - 功能按鈕組（變更密碼、編輯出生日期、登出）
+ * - 各種對話框（密碼變更、出生日期編輯）
+ * 
+ * @author StudySync Team
+ * @version 1.0
+ */
 public class SettingsPanel extends JPanel {
+    /** 當前登入的用戶 */
     private User currentUser;
+    
+    /** 主要內容面板 */
     private JPanel contentPanel;
+    
+    /** 電子郵件顯示標籤 */
     private JLabel emailLabel;
+    
+    /** 用戶ID顯示標籤 */
     private JLabel uidLabel;
+    
+    /** 出生日期顯示標籤 */
     private JLabel birthDateLabel;
+    
+    /** 主視窗引用，用於登出後的頁面切換 */
     private MainWindow mainWindow;
+    
+    /** 用戶控制器，處理用戶相關業務邏輯 */
     private final UserController userController = new UserController();
 
+    /**
+     * 建構設定面板
+     * 初始化UI組件
+     */
     public SettingsPanel() {
         initializeUI();
     }
 
+    /**
+     * 初始化使用者介面
+     * 設置面板布局和各個UI組件
+     */
     private void initializeUI() {
         setLayout(new BorderLayout());
         setBackground(new Color(245, 248, 255));
